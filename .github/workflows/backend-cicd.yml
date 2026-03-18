@@ -17,13 +17,13 @@ jobs:
         run: |
           cd llm-python
           # 【硬编码】直接写死你的 Docker ID 和镜像名
-          docker build -t '<你的DockerID>/llm-python:latest' .
+          docker build -t 'therealusera/llm-python:latest' .
 
       - name: Run Trivy Vulnerability Scanner
         uses: aquasecurity/trivy-action@master
         with:
           # 【硬编码】直接扫描指定的镜像名 [cite: 912]
-          image-ref: '<你的DockerID>/llm-python:latest'
+          image-ref: 'therealusera/llm-python:latest'
           format: 'table'
           exit-code: '0' 
           ignore-unfixed: true
@@ -34,11 +34,11 @@ jobs:
         uses: docker/login-action@v3
         with:
           # 【硬编码】直接写死用户名
-          username: '<你的DockerID>'
+          username: 'therealusera'
           # 【唯一 Secret】密码必须通过 Secret 读取
           password: ${{ secrets.DOCKERHUB_TOKEN }}
 
       - name: Push Image to Docker Hub
         run: |
           # 【硬编码】将构建并扫描通过的镜像推送到 Docker Hub [cite: 1155, 1156]
-          docker push '<你的DockerID>/llm-python:latest'
+          docker push 'therealusera/llm-python:latest'
