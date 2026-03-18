@@ -1,11 +1,10 @@
 name: Backend CI/CD Pipeline
 
-# 当有代码推送到 main 分支，且修改了 llm-python 文件夹下的内容时触发
 on:
   push:
     branches: [ "main" ]
-    paths:
-      - 'llm-python/**'
+  # 新增：允许在 GitHub Actions 页面手动点击触发运行，方便调试
+  workflow_dispatch: 
 
 jobs:
   build-scan-push:
@@ -17,15 +16,15 @@ jobs:
       - name: Build Docker Image
         run: |
           cd llm-python
-          # 构建镜像并打上 latest 标签
-          docker build -t therealusera/llm-python:latest .
+          # 【硬编码】直接写死你的 Docker ID 和镜像名
+          docker build -t '<你的DockerID>/llm-python:latest' .
 
       - name: Run Trivy Vulnerability Scanner
         uses: aquasecurity/trivy-action@master
         with:
-          image-ref: 'therealusera/llm-python:latest'
+          # 【硬编码】直接扫描指定的镜像名 [cite: 912]
+          image-ref: '<你的DockerID>/llm-python:latest'
           format: 'table'
-          # 如果发现严重漏洞 (CRITICAL,HIGH)，流水线不会直接中断退出 (根据课件要求，可配置退出码)
           exit-code: '0' 
           ignore-unfixed: true
           vuln-type: 'os,library'
@@ -34,10 +33,12 @@ jobs:
       - name: Log in to Docker Hub
         uses: docker/login-action@v3
         with:
-          username: 'therealusera'
+          # 【硬编码】直接写死用户名
+          username: '<你的DockerID>'
+          # 【唯一 Secret】密码必须通过 Secret 读取
           password: ${{ secrets.DOCKERHUB_TOKEN }}
 
       - name: Push Image to Docker Hub
         run: |
-          # 将通过扫描的镜像推送到你的 Docker Hub 仓库
-          docker push therealusera/llm-python:latest
+          # 【硬编码】将构建并扫描通过的镜像推送到 Docker Hub [cite: 1155, 1156]
+          docker push '<你的DockerID>/llm-python:latest'
